@@ -2,7 +2,6 @@ let modelLoaded = false;
 
 // DOM Elements
 const trainBtn = document.getElementById('trainBtn');
-const loadBtn = document.getElementById('loadBtn');
 const predictBtn = document.getElementById('predictBtn');
 const modelStatus = document.getElementById('modelStatus');
 const titleInput = document.getElementById('title');
@@ -15,7 +14,6 @@ const message = document.getElementById('message');
 
 // Event Listeners
 trainBtn.addEventListener('click', trainModel);
-loadBtn.addEventListener('click', loadModel);
 predictBtn.addEventListener('click', predict);
 
 // Check model status on page load (model is auto-loaded by the server)
@@ -63,34 +61,6 @@ async function trainModel() {
     showLoading(false);
 }
 
-async function loadModel() {
-    showLoading(true);
-    hideMessage();
-    
-    try {
-        const response = await fetch('/load_model', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        
-        const data = await response.json();
-        
-        if (data.success) {
-            modelLoaded = true;
-            updateModelStatus(true);
-            showMessage('Model loaded successfully!', 'success');
-        } else {
-            showMessage(`Error: ${data.error}`, 'error');
-        }
-    } catch (error) {
-        showMessage(`Error: ${error.message}`, 'error');
-    }
-    
-    showLoading(false);
-}
-
 async function predict() {
     const title = titleInput.value.trim();
     const description = descriptionInput.value.trim();
@@ -101,7 +71,7 @@ async function predict() {
     }
     
     if (!modelLoaded) {
-        showMessage('Please train or load the model first', 'error');
+        showMessage('Please train the model first', 'error');
         return;
     }
     
@@ -185,12 +155,10 @@ function showLoading(show) {
     if (show) {
         loading.classList.remove('hidden');
         trainBtn.disabled = true;
-        loadBtn.disabled = true;
         predictBtn.disabled = true;
     } else {
         loading.classList.add('hidden');
         trainBtn.disabled = false;
-        loadBtn.disabled = false;
         predictBtn.disabled = false;
     }
 }

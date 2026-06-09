@@ -24,7 +24,8 @@ Project/
 
 - `data/` : berisi dataset mentah dari `Docs/dataset` dan file `indonesia_sosial_ekonomi_2025.csv` hasil pemrosesan.
 - `knime/` : berisi panduan workflow KNIME, node, pengaturan, dan visualisasi.
-- `app/` : berisi aplikasi web Flask `app.py` (beserta `templates/` dan `static/`) dan script `generate_cluster_data.py` untuk menyiapkan dataset dan hasil klaster.
+- `app/` : berisi aplikasi web Flask `app.py` (beserta `templates/` dan `static/`). `app.py` sekaligus menyiapkan dataset, model, dan hasil klaster secara otomatis saat pertama dijalankan.
+- `Docs/dataset/` : berisi dataset mentah BPS (pengangguran, lama sekolah, garis kemiskinan) yang dipakai untuk membangun hasil klastering.
 - `output/` : berisi file `cluster_results.csv`, `cluster_summary.csv`, dan `elbow_plot.png`.
 - `laporan/` : berisi laporan analisis dan interpretasi.
 
@@ -41,30 +42,25 @@ Project/
    pip install -r requirements.txt
    ```
 
-## Menjalankan Pra-pemrosesan dan Klastering
-
-Jalankan script berikut untuk menggabungkan dataset, membuat fitur, dan menghasilkan hasil klastering:
-
-```powershell
-python app\generate_cluster_data.py
-```
-
-Output yang dihasilkan:
-
-- `output\cluster_results.csv`
-- `output\cluster_summary.csv`
-- `output\elbow_plot.png`
-- `data\indonesia_sosial_ekonomi_2025.csv`
-
 ## Menjalankan Dashboard Flask
 
-Pastikan `output\cluster_results.csv` sudah tersedia. Lalu jalankan:
+Cukup jalankan satu perintah:
 
 ```powershell
 python app\app.py
 ```
 
-Buka `http://localhost:5000` di browser. Aplikasi dashboard menampilkan ringkasan klaster, tabel provinsi, distribusi cluster, scatter plot, pencarian provinsi, statistik cluster, prediksi cluster manual, dan fitur ekspor ke Excel/CSV.
+Saat pertama dijalankan, `app.py` otomatis membaca dataset mentah dari `Docs/dataset/`, membangun fitur, melatih K-Means, dan menyimpan output berikut bila belum ada:
+
+- `output\cluster_results.csv`
+- `output\cluster_summary.csv`
+- `output\elbow_plot.png`
+- `output\scaler.pkl`, `output\kmeans_model.pkl`, `output\cluster_name_map.pkl`
+- `data\indonesia_sosial_ekonomi_2025.csv`
+
+Kalau ingin membangun ulang dari awal, hapus isi folder `output/` lalu jalankan lagi.
+
+Buka `http://localhost:5000` di browser. Aplikasi dashboard menampilkan ringkasan klaster, tabel provinsi, distribusi cluster, scatter plot, pencarian provinsi, statistik cluster, dan prediksi cluster manual.
 
 ## Catatan KNIME
 

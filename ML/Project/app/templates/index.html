@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Segmentasi Kemiskinan Indonesia</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Dashboard Klustering Tingkat Kemiskinan Provinsi Indonesia</h1>
+            <p>Segmentasi K-Means berdasarkan indikator sosial ekonomi 2025</p>
+        </header>
+
+        <section class="metrics">
+            <div class="metric-card">
+                <span class="metric-value">{{ total_provinsi }}</span>
+                <span class="metric-label">Jumlah Provinsi</span>
+            </div>
+            <div class="metric-card cluster-rendah">
+                <span class="metric-value">{{ cluster_counts['Rendah'] }}</span>
+                <span class="metric-label">Cluster Rendah</span>
+            </div>
+            <div class="metric-card cluster-sedang">
+                <span class="metric-value">{{ cluster_counts['Sedang'] }}</span>
+                <span class="metric-label">Cluster Sedang</span>
+            </div>
+            <div class="metric-card cluster-tinggi">
+                <span class="metric-value">{{ cluster_counts['Tinggi'] }}</span>
+                <span class="metric-label">Cluster Tinggi</span>
+            </div>
+        </section>
+
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="dashboard">Dashboard</button>
+            <button class="tab-btn" data-tab="search">Pencarian &amp; Filter</button>
+            <button class="tab-btn" data-tab="data">Data Lengkap</button>
+            <button class="tab-btn" data-tab="predict">Prediksi Manual</button>
+            <button class="tab-btn" data-tab="export">Export</button>
+        </nav>
+
+        <!-- Tab: Dashboard -->
+        <section id="tab-dashboard" class="tab-panel active">
+            <h2>Visualisasi Hasil Clustering</h2>
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Distribusi Cluster</h3>
+                    <div id="chart-pie"></div>
+                </div>
+                <div class="card">
+                    <h3>Statistik Rata-rata per Cluster</h3>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Cluster</th>
+                                <th>Pengangguran</th>
+                                <th>Lama Sekolah</th>
+                                <th>Garis Kemiskinan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in avg_values %}
+                            <tr>
+                                <td>{{ row['Cluster_Name'] }}</td>
+                                <td>{{ row['Tingkat_Pengangguran'] }}</td>
+                                <td>{{ row['Rata_Rata_Lama_Sekolah'] }}</td>
+                                <td>{{ row['Garis_Kemiskinan'] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Pengangguran vs Garis Kemiskinan</h3>
+                    <div id="chart-scatter"></div>
+                </div>
+                <div class="card">
+                    <h3>Rata-rata Lama Sekolah</h3>
+                    <div id="chart-hist"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab: Pencarian & Filter -->
+        <section id="tab-search" class="tab-panel">
+            <h2>Cari dan Filter Provinsi</h2>
+            <div class="grid-2">
+                <div class="card">
+                    <h3>Pencarian Provinsi</h3>
+                    <input type="text" id="searchInput" placeholder="Contoh: JAWA, BALI, ACEH">
+                    <div id="searchResult"><p class="info">Ketik nama provinsi untuk mencari</p></div>
+                </div>
+                <div class="card">
+                    <h3>Filter Cluster</h3>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" class="filter-cluster" value="Rendah" checked> Rendah</label>
+                        <label><input type="checkbox" class="filter-cluster" value="Sedang" checked> Sedang</label>
+                        <label><input type="checkbox" class="filter-cluster" value="Tinggi" checked> Tinggi</label>
+                    </div>
+                    <div id="filterResult"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Tab: Data Lengkap -->
+        <section id="tab-data" class="tab-panel">
+            <h2>Data Lengkap Semua Provinsi</h2>
+            <div class="card table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Provinsi</th>
+                            <th>Pengangguran</th>
+                            <th>Lama Sekolah</th>
+                            <th>Garis Kemiskinan</th>
+                            <th>Cluster Label</th>
+                            <th>Cluster Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in full_data %}
+                        <tr>
+                            <td>{{ row['Provinsi'] }}</td>
+                            <td>{{ row['Tingkat_Pengangguran'] }}</td>
+                            <td>{{ row['Rata_Rata_Lama_Sekolah'] }}</td>
+                            <td>{{ row['Garis_Kemiskinan'] }}</td>
+                            <td>{{ row['Cluster_Label'] }}</td>
+                            <td>{{ row['Cluster_Name'] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Tab: Prediksi Manual -->
+        <section id="tab-predict" class="tab-panel">
+            <h2>Prediksi Cluster Perorangan</h2>
+            <p>Masukkan nilai indikator untuk memprediksi cluster kategori mana yang sesuai.</p>
+            <div class="card">
+                <div class="grid-3">
+                    <div class="form-group">
+                        <label for="unemployment">Tingkat Pengangguran (%)</label>
+                        <input type="number" id="unemployment" min="1" max="8" step="0.1" value="5.0">
+                    </div>
+                    <div class="form-group">
+                        <label for="school">Rata-rata Lama Sekolah (tahun)</label>
+                        <input type="number" id="school" min="4" max="12" step="0.1" value="9.5">
+                    </div>
+                    <div class="form-group">
+                        <label for="poverty">Garis Kemiskinan (Rp/kapita/bulan)</label>
+                        <input type="number" id="poverty" min="400000" max="1500000" step="10000" value="700000">
+                    </div>
+                </div>
+                <button id="predictBtn" class="btn btn-primary">Prediksi Cluster</button>
+            </div>
+            <div id="predictResult"></div>
+        </section>
+
+        <!-- Tab: Export -->
+        <section id="tab-export" class="tab-panel">
+            <h2>Ekspor Data</h2>
+            <div class="grid-3">
+                <div class="card export-card">
+                    <h3>Export Semua Data ke Excel</h3>
+                    <a class="btn btn-success" href="{{ url_for('export_excel') }}">Download Excel</a>
+                </div>
+                <div class="card export-card">
+                    <h3>Export Semua Data ke CSV</h3>
+                    <a class="btn btn-success" href="{{ url_for('export_csv') }}">Download CSV</a>
+                </div>
+                <div class="card export-card">
+                    <h3>Export Ringkasan Cluster ke CSV</h3>
+                    <a class="btn btn-success" href="{{ url_for('export_summary') }}">Download Ringkasan</a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script id="chart-pie-data" type="application/json">{{ charts.pie | safe }}</script>
+    <script id="chart-scatter-data" type="application/json">{{ charts.scatter | safe }}</script>
+    <script id="chart-hist-data" type="application/json">{{ charts.hist | safe }}</script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

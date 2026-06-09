@@ -18,10 +18,34 @@ classifier = NewsClassifier(model_type='naive_bayes')
 # Global variables to track model state
 model_loaded = False
 
+MODEL_PATH = '../models/naive_bayes_model.pkl'
+VECTORIZER_PATH = '../models/tfidf_vectorizer.pkl'
+
+
+def auto_load_model():
+    """Load the trained model and vectorizer at startup if they exist."""
+    global model_loaded
+    if os.path.exists(MODEL_PATH) and os.path.exists(VECTORIZER_PATH):
+        try:
+            classifier.load(MODEL_PATH)
+            tfidf_extractor.load(VECTORIZER_PATH)
+            model_loaded = True
+            print('Model loaded automatically from ../models/')
+        except Exception as e:
+            print(f'Auto-load failed: {e}')
+    else:
+        print('No saved model found. Train the model first.')
+    return model_loaded
+
 
 @app.route('/')
 def home():
     return render_template('index.html')
+
+
+@app.route('/status', methods=['GET'])
+def status():
+    return jsonify({'model_loaded': model_loaded})
 
 
 @app.route('/predict', methods=['POST'])
@@ -80,6 +104,8 @@ def train():
     try:
         from data_processing import DataLoader, split_data
         
+        os.makedirs('../models', exist_ok=True)
+
         # Load dataset
         data_loader = DataLoader(data_path='../data')
         df = data_loader.load_csv('dataset.csv')
@@ -110,9 +136,8 @@ def train():
         results = classifier.evaluate(X_test_tfidf, y_test)
         
         # Save model and vectorizer
-        os.makedirs('../models', exist_ok=True)
-        classifier.save('../models/naive_bayes_model.pkl')
-        tfidf_extractor.save('../models/tfidf_vectorizer.pkl')
+        classifier.save(MODEL_PATH)
+        tfidf_extractor.save(VECTORIZER_PATH)
         
         model_loaded = True
         
@@ -133,8 +158,8 @@ def load_model():
     
     try:
         # Load model and vectorizer
-        classifier.load('../models/naive_bayes_model.pkl')
-        tfidf_extractor.load('../models/tfidf_vectorizer.pkl')
+        classifier.load(MODEL_PATH)
+        tfidf_extractor.load(VECTORIZER_PATH)
         
         model_loaded = True
         
@@ -145,6 +170,9 @@ def load_model():
         
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+auto_load_model()
 
 
 if __name__ == '__main__':

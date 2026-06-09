@@ -18,6 +18,22 @@ trainBtn.addEventListener('click', trainModel);
 loadBtn.addEventListener('click', loadModel);
 predictBtn.addEventListener('click', predict);
 
+// Check model status on page load (model is auto-loaded by the server)
+document.addEventListener('DOMContentLoaded', checkModelStatus);
+
+async function checkModelStatus() {
+    try {
+        const response = await fetch('/status');
+        const data = await response.json();
+        if (data.model_loaded) {
+            modelLoaded = true;
+            updateModelStatus(true);
+        }
+    } catch (error) {
+        console.error('Failed to check model status:', error);
+    }
+}
+
 async function trainModel() {
     showLoading(true);
     hideMessage();

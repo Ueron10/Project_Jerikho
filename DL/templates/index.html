@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Classification - NLP</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📰 News Classification System</h1>
+            <p>Natural Language Processing for English News Articles</p>
+        </header>
+
+        <div class="main-content">
+            <div class="control-panel">
+                <button id="trainBtn" class="btn btn-primary">Train Model</button>
+                <button id="loadBtn" class="btn btn-secondary">Load Model</button>
+                <div id="modelStatus" class="status">Model Status: Not Loaded</div>
+            </div>
+
+            <div class="input-section">
+                <h2>Classify News Article</h2>
+                <div class="form-group">
+                    <label for="title">Title:</label>
+                    <input type="text" id="title" placeholder="Enter news title...">
+                </div>
+                <div class="form-group">
+                    <label for="description">Description:</label>
+                    <textarea id="description" rows="5" placeholder="Enter news description..."></textarea>
+                </div>
+                <button id="predictBtn" class="btn btn-success">Classify</button>
+            </div>
+
+            <div id="resultSection" class="result-section hidden">
+                <h2>Classification Result</h2>
+                <div class="result-card">
+                    <div class="category-display">
+                        <span class="label">Category:</span>
+                        <span id="categoryResult" class="category">-</span>
+                    </div>
+                    <div id="probabilitiesSection" class="probabilities">
+                        <h3>Probabilities:</h3>
+                        <div class="prob-bar">
+                            <span>World:</span>
+                            <div class="progress-bar">
+                                <div id="probWorld" class="progress-fill"></div>
+                            </div>
+                            <span id="probWorldText">0%</span>
+                        </div>
+                        <div class="prob-bar">
+                            <span>Sports:</span>
+                            <div class="progress-bar">
+                                <div id="probSports" class="progress-fill"></div>
+                            </div>
+                            <span id="probSportsText">0%</span>
+                        </div>
+                        <div class="prob-bar">
+                            <span>Business:</span>
+                            <div class="progress-bar">
+                                <div id="probBusiness" class="progress-fill"></div>
+                            </div>
+                            <span id="probBusinessText">0%</span>
+                        </div>
+                        <div class="prob-bar">
+                            <span>Sci/Tech:</span>
+                            <div class="progress-bar">
+                                <div id="probSciTech" class="progress-fill"></div>
+                            </div>
+                            <span id="probSciTechText">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+                <p>Processing...</p>
+            </div>
+
+            <div id="message" class="message hidden"></div>
+        </div>
+
+        <footer>
+            <p>Categories: World, Sports, Business, Sci/Tech</p>
+            <p>NLP Pipeline: Case Folding → Tokenization → Stopword Removal → Stemming → TF-IDF → Classification</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

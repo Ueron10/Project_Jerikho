@@ -1,0 +1,198 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+*.manifest
+*.spec
+
+# Testing
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Documentation
+docs/_build/
+/site
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# IPython
+profile_default/
+ipython_config.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.python-version
+Pipfile.lock
+__pypackages__/
+
+# IDE
+.vscode/
+.idea/
+.spyderproject
+.spyproject
+.ropeproject
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Deep Learning / Machine Learning
+*.pkl
+*.joblib
+*.h5
+*.hdf5
+*.pb
+*.onnx
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.bin
+*.gguf
+*.index
+*.json
+!data/*.json
+!config/*.json
+
+# Data files
+output/*
+!output/.gitkeep
+*.csv
+!data/Tingkat*.csv
+!data/Rata*.csv
+!data/Garis*.csv
+*.xlsx
+*.xls
+!data/*.xlsx
+!data/*.xls
+*.parquet
+*.feather
+*.pickle
+*.npy
+*.npz
+*.mat
+*.arff
+*.sav
+
+# Logs
+*.log
+logs/
+*.out
+*.err
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# Flask / Django
+instance/
+.webassets-cache
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+.scrapy
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath
+*.sage.py
+
+# Type checkers
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+
+# Streamlit
+.streamlit/
+*.streamlit/
+
+# Translations
+*.mo
+*.pot
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+.cache/
+tmp/
+temp/
+
+# Package managers
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build artifacts
+*.o
+*.a
+*.exe
+*.dll
+*.dylib
+target/
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z

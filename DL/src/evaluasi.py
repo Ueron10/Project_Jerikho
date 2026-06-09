@@ -78,13 +78,13 @@ def main():
     print("\n" + "=" * 60)
     print("SAVING MODEL")
     print("=" * 60)
-    os.makedirs('models', exist_ok=True)
+    os.makedirs('../models', exist_ok=True)
     
-    classifier.save('models/news_classifier.pkl')
-    print("Classifier saved to models/news_classifier.pkl")
+    classifier.save('../models/naive_bayes_model.pkl')
+    print("Classifier saved to ../models/naive_bayes_model.pkl")
     
-    tfidf_extractor.save('models/tfidf_vectorizer.pkl')
-    print("TF-IDF vectorizer saved to models/tfidf_vectorizer.pkl")
+    tfidf_extractor.save('../models/tfidf_vectorizer.pkl')
+    print("TF-IDF vectorizer saved to ../models/tfidf_vectorizer.pkl")
     
     print("\n" + "=" * 60)
     print("Training completed successfully!")

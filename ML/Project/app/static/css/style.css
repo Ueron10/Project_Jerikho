@@ -222,14 +222,6 @@ input[type="number"] {
     margin-bottom: 16px;
 }
 
-.export-card {
-    text-align: center;
-}
-
-.export-card h3 {
-    min-height: 50px;
-}
-
 .muted {
     color: #7f8c8d;
     font-size: 0.9rem;

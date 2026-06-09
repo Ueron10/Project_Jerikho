@@ -1,6 +1,6 @@
 # Implementasi K-Means Clustering untuk Segmentasi Tingkat Kemiskinan Provinsi di Indonesia
 
-Proyek ini mengimplementasikan klastering K-Means untuk segmentasi tingkat kemiskinan provinsi Indonesia berdasarkan indikator sosial ekonomi. Proyek menggunakan KNIME sebagai tool data mining utama, dan Python Streamlit untuk dashboard interaktif.
+Proyek ini mengimplementasikan klastering K-Means untuk segmentasi tingkat kemiskinan provinsi Indonesia berdasarkan indikator sosial ekonomi. Proyek menggunakan KNIME sebagai tool data mining utama, dan Python Flask untuk dashboard web interaktif.
 
 Dataset yang digunakan mencakup tiga indikator asli provinsi berikut:
 - Nama Provinsi
@@ -15,7 +15,7 @@ Klastering dan visualisasi hanya menggunakan ketiga fitur utama tersebut.
 Project/
 ├── data/                 # Dataset mentah dan file hasil preprocessing
 ├── knime/                # Deskripsi workflow KNIME dan dokumentasi node
-├── app/                  # Aplikasi Streamlit dan script pembuat dataset
+├── app/                  # Aplikasi web Flask dan script pembuat dataset
 ├── output/               # Hasil klastering dan visualisasi Elbow
 ├── laporan/              # Dokumentasi analisis dan interpretasi hasil
 └── README.md
@@ -24,7 +24,7 @@ Project/
 
 - `data/` : berisi dataset mentah dari `Docs/dataset` dan file `indonesia_sosial_ekonomi_2025.csv` hasil pemrosesan.
 - `knime/` : berisi panduan workflow KNIME, node, pengaturan, dan visualisasi.
-- `app/` : berisi aplikasi Streamlit `streamlit_app.py` dan script `generate_cluster_data.py` untuk menyiapkan dataset dan hasil klaster.
+- `app/` : berisi aplikasi web Flask `app.py` (beserta `templates/` dan `static/`) dan script `generate_cluster_data.py` untuk menyiapkan dataset dan hasil klaster.
 - `output/` : berisi file `cluster_results.csv`, `cluster_summary.csv`, dan `elbow_plot.png`.
 - `laporan/` : berisi laporan analisis dan interpretasi.
 
@@ -56,15 +56,15 @@ Output yang dihasilkan:
 - `output\elbow_plot.png`
 - `data\indonesia_sosial_ekonomi_2025.csv`
 
-## Menjalankan Dashboard Streamlit
+## Menjalankan Dashboard Flask
 
 Pastikan `output\cluster_results.csv` sudah tersedia. Lalu jalankan:
 
 ```powershell
-streamlit run app\streamlit_app.py
+python app\app.py
 ```
 
-Aplikasi dashboard akan tersedia di browser, menampilkan ringkasan klaster, tabel provinsi, distribusi cluster, scatter plot, pencarian provinsi, statistik cluster, dan fitur ekspor ke Excel.
+Buka `http://localhost:5000` di browser. Aplikasi dashboard menampilkan ringkasan klaster, tabel provinsi, distribusi cluster, scatter plot, pencarian provinsi, statistik cluster, prediksi cluster manual, dan fitur ekspor ke Excel/CSV.
 
 ## Catatan KNIME
 

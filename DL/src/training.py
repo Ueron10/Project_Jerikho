@@ -15,10 +15,10 @@ class NewsClassifier:
         
         # Category mapping
         self.category_mapping = {
-            0: 'World',
-            1: 'Sports',
-            2: 'Business',
-            3: 'Sci/Tech'
+            1: 'World',
+            2: 'Sports',
+            3: 'Business',
+            4: 'Sci/Tech'
         }
         self.reverse_mapping = {v: k for k, v in self.category_mapping.items()}
     
@@ -96,3 +96,49 @@ class NewsClassifier:
         self.model = joblib.load(filepath)
         self.is_trained = True
         return self
+
+
+if __name__ == "__main__":
+    print("=" * 50)
+    print("Model Training Pipeline")
+    print("=" * 50)
+    
+    # Load processed data
+    print("\n1. Loading processed data...")
+    import os
+    data_path = '../models/processed_data.pkl'
+    if not os.path.exists(data_path):
+        print(f"   Error: {data_path} not found. Run data_processing.py first.")
+        exit(1)
+    
+    data = joblib.load(data_path)
+    X_train = data['X_train']
+    X_test = data['X_test']
+    y_train = data['y_train']
+    y_test = data['y_test']
+    print(f"   Loaded data: X_train={X_train.shape}, X_test={X_test.shape}")
+    
+    # Train model
+    model_type = 'naive_bayes'
+    print(f"\n2. Training {model_type}...")
+    classifier = NewsClassifier(model_type=model_type)
+    classifier.train(X_train, y_train)
+    
+    # Evaluate
+    print(f"   Evaluating {model_type}...")
+    eval_results = classifier.evaluate(X_test, y_test)
+    
+    print(f"   Accuracy: {eval_results['accuracy']:.4f}")
+    
+    # Save model
+    model_path = f'../models/{model_type}_model.pkl'
+    classifier.save(model_path)
+    print(f"   Model saved to {model_path}")
+    
+    # Print detailed classification report
+    print(f"\nDetailed report for {model_type}:")
+    print(eval_results['classification_report'])
+    
+    print("\n" + "=" * 50)
+    print("Training completed successfully!")
+    print("=" * 50)

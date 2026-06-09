@@ -19,10 +19,10 @@ class DataLoader:
     def __init__(self, data_path='data'):
         self.data_path = data_path
         self.category_mapping = {
-            'World': 0,
-            'Sports': 1,
-            'Business': 2,
-            'Sci/Tech': 3
+            'World': 1,
+            'Sports': 2,
+            'Business': 3,
+            'Sci/Tech': 4
         }
     
     def load_csv(self, filename):
@@ -33,63 +33,6 @@ class DataLoader:
         
         df = pd.read_csv(filepath)
         return df
-    
-    def create_sample_dataset(self, num_samples=100):
-        """Create a sample dataset for testing"""
-        sample_data = {
-            'Class Id': [],
-            'Title': [],
-            'Description': []
-        }
-        
-        # Sample news data for each category
-        samples = {
-            'World': [
-                ("Global Summit Addresses Climate Change", "World leaders gathered today to discuss urgent measures to combat climate change and reduce carbon emissions."),
-                ("Earthquake Strikes Pacific Region", "A powerful earthquake hit the Pacific region, causing widespread damage and prompting emergency response teams."),
-                ("UN Peacekeeping Mission Extended", "The United Nations Security Council voted to extend the peacekeeping mission in the conflict zone for another six months."),
-                ("New Trade Agreement Signed", "Multiple countries signed a comprehensive trade agreement aimed at boosting economic cooperation and reducing tariffs."),
-                ("Diplomatic Talks Resume", "After months of tension, diplomatic talks between the two nations have resumed with hopes of resolving longstanding disputes.")
-            ],
-            'Sports': [
-                ("Championship Finals This Weekend", "The highly anticipated championship finals will take place this weekend, with top teams competing for the title."),
-                ("Star Player Signs Record Contract", "A renowned athlete has signed a record-breaking contract worth millions, marking a historic moment in sports."),
-                ("Olympic Games Preparation Underway", "Athletes from around the world are intensifying their training as the Olympic Games approach."),
-                ("Tournament Upset Shocks Fans", "In a stunning turn of events, the underdog team defeated the favorites in a thrilling tournament match."),
-                ("New Stadium Construction Begins", "Construction has begun on a state-of-the-art stadium that will host major sporting events in the future.")
-            ],
-            'Business': [
-                ("Stock Market Reaches New High", "The stock market surged to record levels as investor confidence grows amid positive economic indicators."),
-                ("Tech Company Reports Strong Earnings", "A leading technology company announced better-than-expected quarterly earnings, driving stock prices up."),
-                ("Merger Creates Industry Giant", "Two major corporations have merged to form the largest company in their sector, reshaping the industry landscape."),
-                ("Interest Rates Remain Unchanged", "The central bank decided to keep interest rates steady, maintaining the current monetary policy."),
-                ("Startup Raises Massive Funding Round", "A promising startup successfully raised significant funding from venture capitalists to expand operations.")
-            ],
-            'Sci/Tech': [
-                ("Breakthrough in Quantum Computing", "Scientists have achieved a major breakthrough in quantum computing, solving complex problems faster than ever."),
-                ("New Space Mission Launched", "A rocket carrying advanced satellites was successfully launched, marking a new era in space exploration."),
-                ("AI System Achieves Human-Level Performance", "An artificial intelligence system has demonstrated performance comparable to human experts in various tasks."),
-                ("Renewable Energy Innovation", "Researchers have developed a more efficient solar panel technology that could revolutionize clean energy production."),
-                ("Medical Research Shows Promise", "Clinical trials for a new treatment show promising results, offering hope for patients with rare diseases.")
-            ]
-        }
-        
-        # Generate samples
-        for category, news_list in samples.items():
-            for title, description in news_list:
-                sample_data['Class Id'].append(self.category_mapping[category])
-                sample_data['Title'].append(title)
-                sample_data['Description'].append(description)
-        
-        df = pd.DataFrame(sample_data)
-        return df
-    
-    def save_dataset(self, df, filename):
-        """Save dataset to CSV"""
-        filepath = os.path.join(self.data_path, filename)
-        os.makedirs(self.data_path, exist_ok=True)
-        df.to_csv(filepath, index=False)
-        print(f"Dataset saved to: {filepath}")
     
     def combine_title_description(self, df):
         """Combine title and description into a single text field"""
@@ -207,7 +150,9 @@ class TfidfExtractor:
     
     def fit_transform(self, texts):
         """Fit and transform in one step"""
-        return self.vectorizer.fit_transform(texts)
+        result = self.vectorizer.fit_transform(texts)
+        self.is_fitted = True
+        return result
     
     def get_feature_names(self):
         """Get feature names"""
@@ -224,3 +169,65 @@ class TfidfExtractor:
         self.vectorizer = joblib.load(filepath)
         self.is_fitted = True
         return self
+
+
+if __name__ == "__main__":
+    print("=" * 50)
+    print("Data Processing Pipeline")
+    print("=" * 50)
+    
+    # Initialize components
+    loader = DataLoader(data_path='../data')
+    preprocessor = TextPreprocessor()
+    tfidf_extractor = TfidfExtractor(max_features=5000, ngram_range=(1, 2))
+    
+    # Load dataset
+    print("\n1. Loading dataset...")
+    df = loader.load_csv('dataset.csv')
+    print(f"   Loaded {len(df)} samples from dataset.csv")
+    
+    # Combine title and description
+    print("\n2. Combining title and description...")
+    df = loader.combine_title_description(df)
+    
+    # Preprocess text
+    print("\n3. Preprocessing text...")
+    processed_texts = preprocessor.preprocess_batch(df['Combined_Text'].tolist())
+    df['Processed_Text'] = processed_texts
+    print(f"   Preprocessed {len(processed_texts)} texts")
+    
+    # Split data
+    print("\n4. Splitting data...")
+    X_train, X_test, y_train, y_test = split_data(
+        processed_texts,
+        df['Class Index'].tolist(),
+        test_size=0.2,
+        random_state=42,
+        stratify=df['Class Index'].tolist()
+    )
+    
+    # Extract TF-IDF features
+    print("\n5. Extracting TF-IDF features...")
+    X_train_tfidf = tfidf_extractor.fit_transform(X_train)
+    X_test_tfidf = tfidf_extractor.transform(X_test)
+    print(f"   TF-IDF features shape: {X_train_tfidf.shape}")
+    
+    # Save vectorizer
+    print("\n6. Saving TF-IDF vectorizer...")
+    os.makedirs('../models', exist_ok=True)
+    tfidf_extractor.save('../models/tfidf_vectorizer.pkl')
+    print("   Vectorizer saved to models/tfidf_vectorizer.pkl")
+    
+    # Save processed data
+    print("\n7. Saving processed data...")
+    joblib.dump({
+        'X_train': X_train_tfidf,
+        'X_test': X_test_tfidf,
+        'y_train': y_train,
+        'y_test': y_test
+    }, '../models/processed_data.pkl')
+    print("   Processed data saved to models/processed_data.pkl")
+    
+    print("\n" + "=" * 50)
+    print("Data processing completed successfully!")
+    print("=" * 50)

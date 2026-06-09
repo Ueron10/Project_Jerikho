@@ -6,49 +6,43 @@ Implementasi Natural Language Processing pada Klasifikasi Artikel Berita Bahasa 
 
 This project implements a Natural Language Processing (NLP) system for classifying English news articles into four categories: World, Sports, Business, and Sci/Tech. The system uses a complete NLP pipeline including preprocessing, feature extraction, and machine learning classification.
 
+**Model Accuracy**: 88.55% with Naive Bayes classifier
+
 ## 🎯 Categories
 
-- **World**: International news and global events
-- **Sports**: Sports news and athletic events
-- **Business**: Business, finance, and economic news
-- **Sci/Tech**: Science and technology news
+- **World** (Class ID: 1): International news and global events
+- **Sports** (Class ID: 2): Sports news and athletic events
+- **Business** (Class ID: 3): Business, finance, and economic news
+- **Sci/Tech** (Class ID: 4): Science and technology news
 
 ## 🏗️ Project Structure
 
 ```
 DL/
 ├── app/
-│   ├── __init__.py
-│   ├── app.py                      # Flask web application
 │   ├── templates/
 │   │   └── index.html              # Web interface
 │   └── static/
 │       ├── css/
-│       │   └── style.css           # Styling
-│       └── js/
-│           └── script.js           # Frontend logic
+│   │   └── style.css               # Styling
+│   └── js/
+│       └── script.js               # Frontend logic
 ├── data/
-│   ├── raw/                        # Raw dataset files
-│   └── processed/                  # Processed data
+│   └── dataset.csv                 # Dataset (7600 samples)
 ├── models/                         # Saved models
-│   ├── news_classifier.pkl         # Trained classifier
-│   └── tfidf_vectorizer.pkl        # TF-IDF vectorizer
+│   ├── naive_bayes_model.pkl       # Trained classifier
+│   ├── tfidf_vectorizer.pkl        # TF-IDF vectorizer
+│   └── processed_data.pkl          # Processed training data
 ├── src/
 │   ├── __init__.py
-│   ├── data_loader.py              # Dataset management
-│   ├── preprocessing/
-│   │   ├── __init__.py
-│   │   └── text_preprocessor.py    # Text preprocessing
-│   ├── features/
-│   │   ├── __init__.py
-│   │   └── tfidf_extractor.py      # TF-IDF feature extraction
-│   └── models/
-│       ├── __init__.py
-│       └── classifier.py           # ML classifier
-├── Docs/                           # Documentation
-├── requirements.txt                 # Python dependencies
-├── train_model.py                  # Training script
-└── README.md                       # This file
+│   ├── data_processing.py          # Data loading, preprocessing, TF-IDF
+│   ├── training.py                 # Model training script
+│   ├── evaluasi.py                 # Evaluation script
+│   └── aplikasi.py                 # Flask web application
+├── docs/
+│   ├── README.md                   # This file
+│   └── RUN_ORDER.md                # Execution order
+└── requirements.txt                # Python dependencies
 ```
 
 ## 🔧 NLP Pipeline
@@ -81,51 +75,69 @@ pip install -r requirements.txt
 
 ## 🚀 Usage
 
-### Option 1: Train and Run via Web Interface
+### Training the Model
 
-1. **Train the model**:
+1. **Process the dataset**:
 ```bash
-python train_model.py
+cd src
+python data_processing.py
 ```
 
 This will:
-- Create a sample dataset (or load existing one)
-- Preprocess the text
-- Train the classifier
-- Save the model and vectorizer
-- Display evaluation results
+- Load dataset.csv (7600 samples)
+- Preprocess text (case folding, tokenization, stopword removal, stemming)
+- Extract TF-IDF features
+- Save processed data and vectorizer to models/
 
-2. **Run the web application**:
+2. **Train the model**:
 ```bash
-python app/app.py
+python training.py
 ```
 
-3. Open your browser and navigate to:
+This will:
+- Load processed data
+- Train Naive Bayes classifier
+- Evaluate model (accuracy: 88.55%)
+- Save trained model to models/
+
+3. **Alternative: Run complete pipeline**:
+```bash
+python evaluasi.py
+```
+
+This runs the complete pipeline from data loading to model training and evaluation.
+
+### Running the Web Application
+
+1. **Start the Flask app**:
+```bash
+python aplikasi.py
+```
+
+2. Open your browser and navigate to:
 ```
 http://localhost:5000
 ```
 
-4. Use the web interface to:
+3. Use the web interface to:
    - Train the model (click "Train Model" button)
    - Load an existing model (click "Load Model" button)
    - Classify news articles by entering title and description
 
-### Option 2: Use in Python Code
+### Using in Python Code
 
 ```python
-from src.preprocessing.text_preprocessor import TextPreprocessor
-from src.features.tfidf_extractor import TfidfExtractor
-from src.models.classifier import NewsClassifier
-from src.data_loader import DataLoader
+from data_processing import DataLoader, TextPreprocessor, TfidfExtractor
+from training import NewsClassifier
 
 # Initialize components
 preprocessor = TextPreprocessor()
 tfidf_extractor = TfidfExtractor()
 classifier = NewsClassifier(model_type='naive_bayes')
-data_loader = DataLoader()
+data_loader = DataLoader(data_path='../data')
 
 # Load dataset
-df = data_loader.create_sample_dataset()
+df = data_loader.load_csv('dataset.csv')
 df = data_loader.combine_title_description(df)
 
 # Preprocess
@@ -134,7 +146,7 @@ processed_texts = preprocessor.preprocess_batch(df['Combined_Text'].tolist())
 # Train
 tfidf_extractor.fit(processed_texts)
 X_tfidf = tfidf_extractor.transform(processed_texts)
-classifier.train(X_tfidf, df['Class Id'].tolist())
+classifier.train(X_tfidf, df['Class Index'].tolist())
 
 # Predict new text
 new_text = "New breakthrough in quantum computing research"
@@ -145,19 +157,12 @@ category = classifier.get_category_name(prediction)
 print(f"Category: {category}")
 ```
 
-## 🤖 Available Models
+## 🤖 Model
 
-The system supports multiple classification algorithms:
-
-- **Naive Bayes** (default): Fast and effective for text classification
-- **Logistic Regression**: Interpretable and performs well on text data
-- **SVM (Linear)**: Good for high-dimensional text features
-- **Random Forest**: Ensemble method for robust classification
-
-To change the model, modify the `model_type` parameter:
-```python
-classifier = NewsClassifier(model_type='logistic_regression')
-```
+The system uses **Naive Bayes (MultinomialNB)** classifier:
+- Fast and effective for text classification
+- Works well with TF-IDF features
+- Achieves 88.55% accuracy on the test set
 
 ## 📊 Dataset
 
@@ -165,16 +170,21 @@ The system uses a news dataset with the following structure:
 
 | Column | Description |
 |--------|-------------|
-| Class Id | Category identifier (0-3) |
+| Class Index | Category identifier (1-4) |
 | Title | News article title |
 | Description | News article content |
 
-### Sample Dataset
+**Dataset Size**: 7600 news articles (1900 per category)
 
-A sample dataset with 20 articles (5 per category) is included for testing. To use your own dataset:
+**Category Mapping**:
+- 1: World
+- 2: Sports
+- 3: Business
+- 4: Sci/Tech
 
-1. Place your CSV file in `data/raw/`
-2. Ensure it has columns: Class Id, Title, Description
+To use your own dataset:
+1. Place your CSV file in `data/`
+2. Ensure it has columns: Class Index, Title, Description
 3. Use `data_loader.load_csv('your_file.csv')`
 
 ## 📈 Model Evaluation
@@ -215,13 +225,13 @@ The system provides comprehensive evaluation metrics:
 ## 📝 API Endpoints
 
 ### POST /train
-Train the model with sample data.
+Train the model with dataset.csv.
 
 **Response:**
 ```json
 {
   "success": true,
-  "accuracy": 0.95,
+  "accuracy": 0.8855,
   "classification_report": "...",
   "message": "Model trained successfully"
 }
@@ -229,6 +239,14 @@ Train the model with sample data.
 
 ### POST /load_model
 Load a pre-trained model from disk.
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Model loaded successfully"
+}
+```
 
 ### POST /predict
 Classify a news article.
@@ -250,7 +268,8 @@ Classify a news article.
     "Sports": 0.8,
     "Business": 0.05,
     "Sci/Tech": 0.05
-  }
+  },
+  "processed_text": "sport champion final weekend..."
 }
 ```
 
@@ -268,14 +287,19 @@ nltk.download('stopwords')
 ### Model Not Loading
 
 Ensure the model files exist in the `models/` directory:
-- `news_classifier.pkl`
+- `naive_bayes_model.pkl`
 - `tfidf_vectorizer.pkl`
 
-If missing, run `python train_model.py` to create them.
+If missing, run:
+```bash
+cd src
+python data_processing.py
+python training.py
+```
 
 ### Port Already in Use
 
-If port 5000 is in use, modify the port in `app/app.py`:
+If port 5000 is in use, modify the port in `src/aplikasi.py`:
 ```python
 app.run(debug=True, host='0.0.0.0', port=5001)
 ```
@@ -301,9 +325,9 @@ This project is for educational purposes.
 
 To extend this project:
 
-1. Add new preprocessing steps in `src/preprocessing/text_preprocessor.py`
-2. Implement new feature extraction methods in `src/features/`
-3. Add new classification algorithms in `src/models/classifier.py`
+1. Add new preprocessing steps in `src/data_processing.py` (TextPreprocessor class)
+2. Implement new feature extraction methods in `src/data_processing.py` (TfidfExtractor class)
+3. Add new classification algorithms in `src/training.py` (NewsClassifier class)
 4. Enhance the web interface in `app/templates/` and `app/static/`
 
 ## 📞 Support

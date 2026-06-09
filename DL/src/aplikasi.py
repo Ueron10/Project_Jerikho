@@ -5,10 +5,10 @@ import os
 # Add parent directory to path to import modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.data_processing import TextPreprocessor, TfidfExtractor, DataLoader, split_data
-from src.training import NewsClassifier
+from data_processing import TextPreprocessor, TfidfExtractor, DataLoader, split_data
+from training import NewsClassifier
 
-app = Flask(__name__, template_folder='templates', static_folder='static')
+app = Flask(__name__, template_folder='../app/templates', static_folder='../app/static')
 
 # Initialize components
 preprocessor = TextPreprocessor()
@@ -78,11 +78,11 @@ def train():
     global model_loaded
     
     try:
-        from src.data_processing import DataLoader, split_data
+        from data_processing import DataLoader, split_data
         
-        # Load sample dataset
-        data_loader = DataLoader()
-        df = data_loader.create_sample_dataset()
+        # Load dataset
+        data_loader = DataLoader(data_path='../data')
+        df = data_loader.load_csv('dataset.csv')
         df = data_loader.combine_title_description(df)
         
         # Preprocess all texts
@@ -91,7 +91,7 @@ def train():
         # Split data
         X_train, X_test, y_train, y_test = split_data(
             processed_texts,
-            df['Class Id'].tolist(),
+            df['Class Index'].tolist(),
             test_size=0.2,
             random_state=42
         )
@@ -110,9 +110,9 @@ def train():
         results = classifier.evaluate(X_test_tfidf, y_test)
         
         # Save model and vectorizer
-        os.makedirs('models', exist_ok=True)
-        classifier.save('models/news_classifier.pkl')
-        tfidf_extractor.save('models/tfidf_vectorizer.pkl')
+        os.makedirs('../models', exist_ok=True)
+        classifier.save('../models/naive_bayes_model.pkl')
+        tfidf_extractor.save('../models/tfidf_vectorizer.pkl')
         
         model_loaded = True
         
@@ -133,8 +133,8 @@ def load_model():
     
     try:
         # Load model and vectorizer
-        classifier.load('models/news_classifier.pkl')
-        tfidf_extractor.load('models/tfidf_vectorizer.pkl')
+        classifier.load('../models/naive_bayes_model.pkl')
+        tfidf_extractor.load('../models/tfidf_vectorizer.pkl')
         
         model_loaded = True
         

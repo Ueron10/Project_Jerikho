@@ -1,8 +1,8 @@
 import sys
 import os
 
-from src.data_processing import DataLoader, TextPreprocessor, TfidfExtractor, split_data
-from src.training import NewsClassifier
+from data_processing import DataLoader, TextPreprocessor, TfidfExtractor, split_data
+from training import NewsClassifier
 
 
 def main():
@@ -15,18 +15,12 @@ def main():
     preprocessor = TextPreprocessor()
     tfidf_extractor = TfidfExtractor(max_features=5000, ngram_range=(1, 2))
     classifier = NewsClassifier(model_type='naive_bayes')
-    data_loader = DataLoader()
+    data_loader = DataLoader(data_path='../data')
     
-    # Load or create dataset
+    # Load dataset
     print("\n[2/6] Loading dataset...")
-    try:
-        df = data_loader.load_csv('dataset.csv')
-        print(f"Loaded {len(df)} samples from CSV file")
-    except FileNotFoundError:
-        print("CSV file not found. Creating sample dataset...")
-        df = data_loader.create_sample_dataset()
-        data_loader.save_dataset(df, 'dataset.csv')
-        print(f"Created and saved {len(df)} sample samples")
+    df = data_loader.load_csv('dataset.csv')
+    print(f"Loaded {len(df)} samples from CSV file")
     
     # Combine title and description
     print("\n[3/6] Combining title and description...")
@@ -47,10 +41,10 @@ def main():
     print("\n[5/6] Splitting data...")
     X_train, X_test, y_train, y_test = split_data(
         processed_texts,
-        df['Class Id'].tolist(),
+        df['Class Index'].tolist(),
         test_size=0.2,
         random_state=42,
-        stratify=df['Class Id'].tolist()
+        stratify=df['Class Index'].tolist()
     )
     
     # Fit TF-IDF
@@ -87,10 +81,10 @@ def main():
     os.makedirs('models', exist_ok=True)
     
     classifier.save('models/news_classifier.pkl')
-    print("✓ Classifier saved to models/news_classifier.pkl")
+    print("Classifier saved to models/news_classifier.pkl")
     
     tfidf_extractor.save('models/tfidf_vectorizer.pkl')
-    print("✓ TF-IDF vectorizer saved to models/tfidf_vectorizer.pkl")
+    print("TF-IDF vectorizer saved to models/tfidf_vectorizer.pkl")
     
     print("\n" + "=" * 60)
     print("Training completed successfully!")
